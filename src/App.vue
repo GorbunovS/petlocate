@@ -1,7 +1,6 @@
 <template>
   <div class="app">
     <main-layout>
-    
     </main-layout>
   </div>
 </template>
@@ -23,8 +22,7 @@ export default {
   padding: 0;
   font-family: Arial, sans-serif;
 }
-
-.el-main {
-  --el-main-padding: 0px;
+.main-layout {
 }
+
 </style>

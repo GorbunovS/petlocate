@@ -1,25 +1,5 @@
 <template>
   <div class="map-with-form">
-    <div class="add-point-form">
-      <AddressAutocomplete @address-selected="handleAddressSelected" />
-      <input
-        v-model="location"
-        placeholder="Место (lat, lon)"
-        class="input-field"
-        readonly
-      />
-      <button @click="generateRandomLocation" class="random-button">Случайные координаты</button>
-      <select v-model="time" class="input-field">
-        <option value="1">Около часа</option>
-        <option value="2">2 часа</option>
-        <option value="5">5 часов</option>
-      </select>
-      <label class="upload-button">
-        <input type="file" @change="onFileChange" hidden />
-        📷 Фото
-      </label>
-      <button @click="addPoint" class="submit-button">Отправить</button>
-    </div>
     <div id="map-container">
       <l-map
         style="width: 100%; height: 100%;"
@@ -59,12 +39,11 @@
 <script>
 import { LMap, LTileLayer, LMarker, LPopup, LCircle } from '@vue-leaflet/vue-leaflet';
 import "leaflet/dist/leaflet.css";
-import AddressAutocomplete from '@/components/AddressAutocomplete.vue';
 import io from 'socket.io-client';
 
 export default {
   components: {
-    LMap, LTileLayer, LMarker, LPopup, LCircle, AddressAutocomplete
+    LMap, LTileLayer, LMarker, LPopup, LCircle
   },
   data() {
     return {
