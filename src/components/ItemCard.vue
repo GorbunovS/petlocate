@@ -1,9 +1,11 @@
 <template>
     <div class="item-card" :class="{ selected: isSelected }" @click="selectItem">
+      <div class="pic-container">
+        <span class="item-status" :class="statusClass">{{ item.status }}</span>
       <img :src="item.photo" alt="Animal Photo" class="item-photo" />
+      </div>
       <div class="item-info">
         <div class="item-header">
-          <span class="item-status" :class="statusClass">{{ item.status }}</span>
           <span class="item-time">{{ item.time }}</span>
         </div>
         <div class="item-type">
@@ -58,11 +60,15 @@
   }
   
   .item-card.selected {
-    background: #D1C4E9; /* Измените цвет выделения по вашему усмотрению */
+    background: #9747FF; 
+    color: white;
+  } .item-card.selected:hover{
+    background: #9747FF; 
+    color: white;
   }
   
   .item-card:hover {
-    background: #E0E0E0;
+    background: #efefef;
   }
   
   .item-photo {

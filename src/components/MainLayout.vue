@@ -57,7 +57,8 @@ export default {
 <style scoped>
 /* Основной стиль для логотипа */
 .logo {
-  padding-right: 20px;
+  padding-right: 10px;
+
 }
 
 /* Основной контейнер */
