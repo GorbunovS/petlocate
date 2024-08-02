@@ -8,7 +8,6 @@
       <div class="list-view">
         <ItemList :items="items" @item-selected="updateMarker" />
       </div>
-      <!-- Conditionally render the chat container with transition -->
       <transition name="chat-container" @before-enter="beforeEnter" @enter="enter" @leave="leave">
         <div v-if="isChatOpen" class="chat-container">
           <ParticipantList />
@@ -20,6 +19,7 @@
 </template>
 
 <script>
+import { mapState, mapActions } from 'vuex';
 import { LMap, LTileLayer, LMarker } from 'vue3-leaflet';
 import 'leaflet/dist/leaflet.css';
 import ParticipantList from './ParticipantList.vue';
@@ -45,44 +45,27 @@ export default {
   data() {
     return {
       zoom: 13,
-      center: [55.751244, 37.618423], // Координаты центра карты
+      center: [55.751244, 37.618423],
       url: 'https://tile.udev.su/styles/basemap/512/{z}/{x}/{y}.png',
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      markers: [], // Массив маркеров
-      items: [
-        {
-          id: 1,
-          photo: 'https://via.placeholder.com/100',
-          status: 'Утерян',
-          type: 'dog',
-          time: 'Около часа назад',
-          location: 'г. Реутов Улица Октября',
-          comment: 'Отзывается на кличку Тесла. Любит есть какашки',
-          position: [55.760, 37.620] // Координаты для маркера
-        },
-        {
-          id: 2,
-          photo: 'https://via.placeholder.com/100',
-          status: 'Найден',
-          type: 'dog',
-          time: 'Только что',
-          location: 'г. Реутов Улица Октября',
-          comment: 'Найден пёс около торгового центра Экватор. Похоже домашний',
-          position: [55.765, 37.625] // Координаты для маркера
-        }
-        // Добавьте больше элементов по необходимости
-      ]
+      markers: []
     };
   },
+  computed: {
+    ...mapState(['items'])
+  },
   methods: {
+    ...mapActions(['fetchItems']),
     updateMarker(item) {
       this.markers = [{ id: item.id, position: item.position }];
       this.center = item.position;
     }
+  },
+  created() {
+    this.fetchItems(); // Получаем данные при создании компонента
   }
 };
 </script>
-
 
 <style scoped>
 .map-container {
@@ -97,7 +80,7 @@ export default {
   top: 0;
   left: 0;
   height: 100%;
-  align-items: flex-start; /* Align items to the top */
+  align-items: flex-start;
 }
 
 .list-view {
@@ -106,35 +89,32 @@ export default {
   height: 90vh;
   border-radius: 8px;
   overflow: hidden;
-  z-index: 900; /* Ensures the list is on top of the map */
-  margin-left: 5px; /* 5px margin from the list */
-  background-color: rgb(234, 234, 234); /* Semi-transparent background */
+  z-index: 900;
+  margin-left: 5px;
+  background-color: rgb(234, 234, 234);
 }
 
-/* Chat container */
 .chat-container {
   width: 500px;
   height: 25vh;
   border-radius: 8px;
   overflow: hidden;
   margin-top: 20px;
-  z-index: 900; /* Ensures the chat is on top of the map */
-  background-color: rgba(255, 255, 255); /* Semi-transparent background */
-  margin-left: 77vw; /* Margin from the list */
-  position: absolute; /* Ensure proper positioning */
+  z-index: 900;
+  background-color: rgba(255, 255, 255);
+  margin-left: 77vw;
+  position: absolute;
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-/* Animation for chat container appearance */
 .chat-container-enter-active,
 .chat-container-leave-active {
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .chat-container-enter, 
-.chat-container-leave-to /* .chat-container-leave-active in <2.1.8 */ {
+.chat-container-leave-to {
   opacity: 0;
   transform: translateX(100%);
 }
 </style>
-
