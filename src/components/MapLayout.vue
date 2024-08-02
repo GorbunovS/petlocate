@@ -8,11 +8,13 @@
       <div class="list-view">
         <ItemList :items="items" @item-selected="updateMarker" />
       </div>
-      <!-- Conditionally render the chat container -->
-      <div v-if="isChatOpen" class="chat-container">
-        <ParticipantList />
-        <ChatItem />
-      </div>
+      <!-- Conditionally render the chat container with transition -->
+      <transition name="chat-container" @before-enter="beforeEnter" @enter="enter" @leave="leave">
+        <div v-if="isChatOpen" class="chat-container">
+          <ParticipantList />
+          <ChatItem />
+        </div>
+      </transition>
     </div>
   </div>
 </template>
@@ -81,6 +83,7 @@ export default {
 };
 </script>
 
+
 <style scoped>
 .map-container {
   position: relative;
@@ -114,9 +117,24 @@ export default {
   height: 25vh;
   border-radius: 8px;
   overflow: hidden;
-  margin-top: 5px;
+  margin-top: 20px;
   z-index: 900; /* Ensures the chat is on top of the map */
   background-color: rgba(255, 255, 255); /* Semi-transparent background */
-  margin-left: 5px; /* 5px margin from the list */
+  margin-left: 77vw; /* Margin from the list */
+  position: absolute; /* Ensure proper positioning */
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Animation for chat container appearance */
+.chat-container-enter-active,
+.chat-container-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.chat-container-enter, 
+.chat-container-leave-to /* .chat-container-leave-active in <2.1.8 */ {
+  opacity: 0;
+  transform: translateX(100%);
 }
 </style>
+
