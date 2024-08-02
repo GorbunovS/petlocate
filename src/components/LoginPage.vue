@@ -197,6 +197,7 @@ export default {
 .error-message {
   color: red;
   font-size: 14px;
+  font-family: 'Ubuntu';
   text-align: center;
   margin-bottom: 10px;
 }
@@ -211,14 +212,17 @@ export default {
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: fixed;
+  padding-bottom: 100px;
 }
 
 .auth-card {
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 50px;
   width: 500px;
-  padding: 100px;
+  min-width: 500px;
+  min-height: 700px;
   gap: 30px;
   height: 50vh;
   background-color: #ffffff;
@@ -276,6 +280,7 @@ export default {
   height: 45px;
   border-radius: 20px;
   padding: 0 15px;
+  font-family: 'Ubuntu';
   font-size: 14px;
   border: 1px solid #dcdcdc;
   box-shadow: none;
@@ -294,6 +299,7 @@ export default {
   border-radius: 20px;
   color: #ffffff;
   font-size: 16px;
+  font-family: 'Ubuntu';
   font-weight: bold;
   cursor: pointer;
 }
@@ -330,6 +336,7 @@ export default {
   border-radius: 8px;
   display: flex;
   justify-content: center;
+  font-family: 'Ubuntu';
   align-items: center;
   font-size: 20px;
   background-color: #e0e0e0;

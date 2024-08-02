@@ -1,109 +1,187 @@
 <template>
   <div class="main-layout">
-    <el-header class="header">
-      <div class="logo">Logo</div>
-      <el-menu :default-active="activeMenu" class="menu" @select="handleMenuSelect" mode="horizontal">
-        <el-menu-item index="map">Map</el-menu-item>
-        <el-menu-item index="board">Bulletin Board</el-menu-item>
-        <el-menu-item index="tips">Tips</el-menu-item>
-        <el-menu-item index="contacts">Contacts</el-menu-item>
-      </el-menu>
-      <div class="header-actions">
-        <el-button type="primary" @click="handleCreateAd">Create Ad</el-button>
-        <el-button icon="el-icon-user" @click="handleUserClick"></el-button>
+    <header class="header">
+      <div class="header-left">
+        <img class="logo" src="@/assets/text-logo.svg" alt="Text Logo" />
+        <nav class="menu">
+          <button @click="navigateTo('map')" :class="{ active: activeMenu === 'map' }">Объявления</button>
+          <button @click="navigateTo('tips')" :class="{ active: activeMenu === 'tips' }">Полезные советы</button>
+          <button @click="navigateTo('contacts')" :class="{ active: activeMenu === 'contacts' }">Контакты</button>
+        </nav>
       </div>
-    </el-header>
-    <el-main class="content">
-      <router-view></router-view>
-    </el-main>
-    <el-footer class="footer">
-      <p>Site information and footer content</p>
-    </el-footer>
+      <div class="header-actions">
+        <button class="btn-primary" @click="handleCreateAd">Create Ad</button>
+        <el-button icon="el-icon-user" @click="handleUserClick" circle></el-button>
+        <button class="chat-toggle" @click="toggleChat">
+          <img src="@/assets/msg_icon.svg" alt="Chat Icon" />
+        </button>
+      </div>
+    </header>
+    <main class="content">
+      <router-view :isChatOpen="isChatOpen" @toggleChat="toggleChat"></router-view>
+    </main>
   </div>
 </template>
 
 <script>
-import { ElHeader, ElMain, ElFooter, ElMenu, ElMenuItem, ElButton } from 'element-plus';
+import { ElButton } from 'element-plus';
 
 export default {
-  components: {
-    ElHeader,
-    ElMain,
-    ElFooter,
-    ElMenu,
-    ElMenuItem,
-    ElButton
-  },
   name: 'MainLayout',
+  components: {
+    ElButton,
+  },
   data() {
     return {
-      activeMenu: 'map'
+      activeMenu: 'map',
+      isChatOpen: false  // Data property to control chat visibility
     };
   },
   methods: {
-    handleMenuSelect(index) {
-      this.activeMenu = index;
-      this.$router.push(`/${index}`); // Перенаправление на соответствующий маршрут
+    navigateTo(section) {
+      this.activeMenu = section;
+      this.$router.push(`/${section}`);
     },
     handleCreateAd() {
       // Логика для создания объявления
     },
     handleUserClick() {
       // Логика для меню пользователя
+    },
+    toggleChat() {
+      this.isChatOpen = !this.isChatOpen; // Toggle chat window visibility
     }
   }
 };
 </script>
-
 <style scoped>
+/* Основной стиль для логотипа */
+.logo {
+  padding-right: 10px;
 
+}
+
+/* Основной контейнер */
 .main-layout {
   display: flex;
   flex-direction: column;
   height: 100%;
+  margin-top: 37px;
 }
 
+/* Хедер */
 .header {
-  position: fixed; /* Make header fixed */
+  position: fixed;
   top: 0;
   left: 0;
-  width: 100%; /* Full width */
+  width: 90vw;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px;
-  background-color: #f5f5f5;
-  z-index: 1000; /* Ensure header is above other content */
+  padding: 20px 5%;
+  border-bottom: 1px solid #e6e6e6;
+  background-color: #ffffff;
+  z-index: 1000;
+}
+
+/* Левая часть хедера: логотип и меню */
+.header-left {
+  display: flex;
+  align-items: center;
 }
 
 .menu {
-  flex: 1;
-  margin: 0 20px;
+  display: flex;
+  gap: 20px;
 }
 
+.menu button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: ubuntu;
+  color: #898989;
+  position: relative;
+  padding: 10px 10px;
+  transition: all 0.3s ease;
+}
+
+.menu button::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 2px;
+  transition: width 0.3s ease;
+}
+
+.menu button:hover::after {
+  width: 100%;
+}
+
+.menu button.active {
+  border-radius: 4px;
+  font-weight: 1000;
+  color: rgb(0, 0, 0);
+}
+
+/* Кнопки действий */
 .header-actions {
   display: flex;
   align-items: center;
+  gap: 10px;
 }
 
-.content {
-  flex: 1;
-  width: 100%;
-  height: 100%;
-  margin-top: 50px; 
+.btn-primary {
+  padding: 5px 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+/* Кнопка чата */
+.chat-toggle {
+  background: none;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
   display: flex;
-  justify-content: center;
   align-items: center;
-}
-.el-main {
-  --el-main-padding: 0px;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
-.el-header {
-  --el-header-padding: 0px;
+.chat-toggle:hover {
+  background-color: #f0f0f0;
 }
-.footer {
-  padding: 10px;
-  background-color: #f5f5f5;
+
+.chat-toggle img {
+  width: 20px;
+  height: 20px;
+}
+
+/* Окно чата */
+.chat-window {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 300px;
+  height: 400px;
+  background-color: #ffffff;
+  border: 1px solid #e6e6e6;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1001;
 }
 </style>
+

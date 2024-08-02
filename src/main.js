@@ -4,6 +4,9 @@ import router from './router'
 import store from './store'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css';
+import 'leaflet/dist/leaflet.css';
+import './assets/styles/global.css';  
+
 
 
 const app = createApp(App)
@@ -13,3 +16,4 @@ app.use(store)
 app.use(ElementPlus)
 
 app.mount('#app')
+//test_commit

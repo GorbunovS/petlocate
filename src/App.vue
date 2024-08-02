@@ -1,7 +1,6 @@
 <template>
   <div class="app">
     <main-layout>
-    
     </main-layout>
   </div>
 </template>
@@ -21,10 +20,9 @@ export default {
   height: 100vh;
   margin: 0;
   padding: 0;
-  font-family: Arial, sans-serif;
+  font-family: 'Ubuntu', sans-serif;
+}
+.main-layout {
 }
 
-.el-main {
-  --el-main-padding: 0px;
-}
 </style>
