@@ -1,19 +1,29 @@
-from flask import Flask
+from flask import Flask, jsonify
+from flask_cors import CORS
 
 
-app = Flask(__name__, static_folder='static/dist')
 
-@app.route('/api/hello')
-def hello():
-    return {'message': 'Hello from Flask!'}
 
-# @app.route('/', defaults={'path': ''})
-# @app.route('/<path:path>')
-def catch_all(path):
-    if path != "" and path.exists():
-        return send_from_directory(app.static_folder, path)
-    else:
-        return send_from_directory(app.static_folder, 'index.html')
+app = Flask(__name__)
+CORS(app)
+
+@app.route('/api/items', methods=['GET'])
+def get_items():
+    items = [
+        {
+            'id': 1,
+            'photo': 'https://via.placeholder.com/100',
+            'status': 'Утерян',
+            'type': 'cat',
+            'time': 'Около часа назад',
+            'location': 'г. Реутов Улица Октября',
+            'comment': 'Отзывается на кличку Тесла. Любит есть какашки',
+            'position': [55.760, 37.620]  # Координаты для маркера
+        }
+        # Добавьте другие предметы здесь
+    ]
+    return jsonify(items)
+
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(debug=True)

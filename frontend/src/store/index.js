@@ -12,16 +12,7 @@ export default createStore({
       2: []
     },
     activeChat: 1,
-    items: [ {
-      id: 1,
-      photo: 'https://via.placeholder.com/100',
-      status: 'Утерян',
-      type: 'cat',
-      time: 'Около часа назад',
-      location: 'г. Реутов Улица Октября',
-      comment: 'Отзывается на кличку Тесла. Любит есть какашки',
-      position: [55.760, 37.620] // Координаты для маркера
-    }] // Добавляем состояние для items
+    items: [] // Изначально пустой массив
   },
   mutations: {
     setActiveChat(state, participantId) {
@@ -31,13 +22,13 @@ export default createStore({
       state.messages[participantId].push(message);
     },
     setItems(state, items) {
-      state.items = items; // Мутация для обновления items
+      state.items = items;
     }
   },
   actions: {
     async fetchItems({ commit }) {
       try {
-        const response = await axios.get('https://api.example.com/items'); // Ваш URL API
+        const response = await axios.get('http://localhost:5000/api/items'); // Убедитесь, что URL совпадает с вашим Flask эндпоинтом
         commit('setItems', response.data);
       } catch (error) {
         console.error('Error fetching items:', error);
@@ -45,6 +36,6 @@ export default createStore({
     }
   },
   getters: {
-    items: state => state.items // Геттер для получения items
+    items: state => state.items
   }
 });
