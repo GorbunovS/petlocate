@@ -47,81 +47,96 @@
   </script>
   
   <style scoped>
-  .item-card {
-    display: flex;
-    width: 510px;
-    padding: 7px 10px;
-    align-items: center;
-    gap: 11px;
-    background: #FFF;
-    transition: background 0.1s;
-    cursor: pointer;
-    border-bottom:1px solid #e6e6e6;
-  }
-  
-  .item-card.selected {
-    background: #9747FF; 
-    color: white;
-  } .item-card.selected:hover{
-    background: #9747FF; 
-    color: white;
-  }
-  
-  .item-card:hover {
-    background: #efefef;
-  }
-  
-  .item-photo {
-    width: 100px;
-    height: 100px;
-    object-fit: cover;
-    border-radius: 8px;
-  }
-  
-  .item-info {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    flex: 1;
-  }
-  
-  .item-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 5px;
-  }
-  
-  .item-status {
-    font-weight: bold;
-    padding: 2px 6px;
-    border-radius: 4px;
-    color: #FFF;
-  }
-  
-  .item-status.lost {
-    background-color: #FFA000;
-  }
-  
-  .item-status.found {
-    background-color: #00C853;
-  }
-  
-  .item-time {
-    font-size: 0.9em;
-    color: #757575;
-  }
-  
-  .item-type, .item-location, .item-comment {
-    margin-bottom: 5px;
-    display: flex;
-    align-items: center;
-  }
-  
-  .item-icon {
-    width: 20px;
-    height: 20px;
-    margin-right: 5px;
-  }
-  </style>
-  
+.pic-container {
+  position: relative; /* Ensures that item-status is positioned relative to this container */
+  width: 100px; /* Set to match the size of item-photo */
+  height: 100px; /* Set to match the size of item-photo */
+}
+
+.item-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.item-status {
+  position: absolute; 
+  width: 100%; /* Matches the width of the photo */
+  bottom: 0; /* Aligns the bottom of the status with the bottom of the .pic-container */
+  left: 0; /* Aligns the status with the left of the .pic-container */
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #FFF;
+  text-align: center; /* Centers the text within the status */
+  box-sizing: border-box; /* Includes padding and border in the element’s total width and height */
+}
+.item-card {
+  display: flex;
+  width: 510px;
+  padding: 7px 10px;
+  align-items: center;
+  gap: 11px;
+  background: #FFF;
+  transition: background 0.1s;
+  cursor: pointer;
+  border-bottom: 1px solid #e6e6e6;
+}
+
+.item-card.selected {
+  background: #9747FF; 
+  color: white;
+}
+.item-card.selected:hover {
+  background: #9747FF; 
+  color: white;
+}
+
+.item-card:hover {
+  background: #efefef;
+}
+
+
+
+.item-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+}
+
+.item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+
+
+.item-status.lost {
+  background-color: #FFA000;
+}
+
+.item-status.found {
+  background-color: #00C853;
+}
+
+.item-time {
+  font-size: 0.9em;
+  color: #757575;
+}
+
+.item-type, .item-location, .item-comment {
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+}
+
+.item-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
+}
+</style>
