@@ -1,77 +1,86 @@
 <template>
-    <div class="item-card" :class="{ selected: isSelected }" @click="selectItem">
-      <div class="pic-container">
-        <span class="item-status" :class="statusClass">{{ item.status }}</span>
+  <div class="item-card" :class="{ selected: isSelected }" @click="selectItem">
+    <div class="pic-container">
+      <span class="item-status" :class="statusClass">{{ item.status }}</span>
       <img :src="item.photo" alt="Animal Photo" class="item-photo" />
-      </div>
-      <div class="item-info">
-        <div class="item-header">
-          <span class="item-time">{{ item.time }}</span>
-        </div>
-        <div class="item-type">
-          <img :src="getTypeIcon(item.type)" alt="Animal Type" class="item-icon" />
-          {{ item.type }}
+    </div>
+    <div class="item-info">
+      <div class="info-container">
+        <div class="info-header">Информация</div>
+        <div class="info-content">
+          <div class="item-time">
+            <CustomIcon v-if="isRecentTime(item.time)" type="force" class="time-icon" />
+            <span class="time-text">{{ item.time }}</span>
+            <CustomIcon :type="item.type" class="item-icon" />
+          </div>
         </div>
         <div class="item-location">{{ item.location }}</div>
-        <div class="item-comment">{{ item.comment }}</div>
       </div>
     </div>
-  </template>
-  
-  <script>
-  export default {
-    props: {
-      item: {
-        type: Object,
-        required: true
-      },
-      isSelected: {
-        type: Boolean,
-        default: false
-      }
+    <div class="item-comment">{{ item.comment }}</div>
+  </div>
+</template>
+
+<script>
+import CustomIcon from '@/components/icons/CustomIcon.vue';
+
+export default {
+  components: {
+    CustomIcon
+  },
+  props: {
+    item: {
+      type: Object,
+      required: true
     },
-    computed: {
-      statusClass() {
-        return this.item.status === 'Утерян' ? 'lost' : 'found';
-      }
-    },
-    methods: {
-      getTypeIcon(type) {
-        return type === 'dog' ? '/path/to/dog-icon.png' : '/path/to/cat-icon.png';
-      },
-      selectItem() {
-        this.$emit('select', this.item);
-      }
+    isSelected: {
+      type: Boolean,
+      default: false
     }
-  };
-  </script>
-  
-  <style scoped>
+  },
+  computed: {
+    statusClass() {
+      return this.item.status === 'Утерян' ? 'lost' : 'found';
+    }
+  },
+  methods: {
+    selectItem() {
+      this.$emit('select', this.item);
+    },
+    isRecentTime(time) {
+      return time === 'Только что' || time === 'Около часа назад';
+    }
+  }
+};
+</script>
+
+<style scoped>
 .pic-container {
-  position: relative; /* Ensures that item-status is positioned relative to this container */
-  width: 100px; /* Set to match the size of item-photo */
-  height: 100px; /* Set to match the size of item-photo */
+  position: relative;
+  width: 100px;
+  height: 100px;
 }
 
 .item-photo {
-  width: 100%;
+  min-width: 100%;
   height: 100%;
   object-fit: cover;
   border-radius: 8px;
 }
 
 .item-status {
-  position: absolute; 
-  width: 100%; /* Matches the width of the photo */
-  bottom: 0; /* Aligns the bottom of the status with the bottom of the .pic-container */
-  left: 0; /* Aligns the status with the left of the .pic-container */
+  position: absolute;
+  width: 100%;
+  bottom: 0;
+  left: 0;
   font-weight: bold;
   padding: 2px 6px;
   border-radius: 4px;
   color: #FFF;
-  text-align: center; /* Centers the text within the status */
-  box-sizing: border-box; /* Includes padding and border in the element’s total width and height */
+  text-align: center;
+  box-sizing: border-box;
 }
+
 .item-card {
   display: flex;
   width: 510px;
@@ -85,19 +94,18 @@
 }
 
 .item-card.selected {
-  background: #9747FF; 
+  background: #9747FF;
   color: white;
 }
+
 .item-card.selected:hover {
-  background: #9747FF; 
+  background: #9747FF;
   color: white;
 }
 
 .item-card:hover {
   background: #efefef;
 }
-
-
 
 .item-info {
   display: flex;
@@ -106,37 +114,57 @@
   flex: 1;
 }
 
-.item-header {
+.info-container {
+  width: 195px;
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 5px;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: left; /* Align text and inline elements to the left */
 }
 
-
-
-.item-status.lost {
-  background-color: #FFA000;
+.info-header {
+  color: #d0d0d0;
+  padding: 5px;
+  border-radius: 4px;
+  font-weight: normal;
+  text-align: center;
 }
 
-.item-status.found {
-  background-color: #00C853;
+.info-content {
+  display: flex;
+  flex-direction: column;
 }
 
 .item-time {
+  display: flex;
+  align-items: center;
   font-size: 0.9em;
   color: #757575;
+  margin-bottom: 5px;
 }
 
-.item-type, .item-location, .item-comment {
+.time-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 5px;
+}
+
+.time-text {
+  font-weight: bold;
+}
+
+.item-type, .item-comment {
   margin-bottom: 5px;
   display: flex;
   align-items: center;
+  background: silver;
 }
 
 .item-icon {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   margin-right: 5px;
 }
 </style>
