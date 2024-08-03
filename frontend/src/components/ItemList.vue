@@ -9,24 +9,24 @@
         :class="{ active: selectedFilter.type === 'cat' }"
         @click="toggleFilter('type', 'cat')"
       >
-        <img src="path_to_cat_icon.svg" alt="Cat Icon" />
-        Cat
+      <CustomIcon fillColor="black" type="cat"/>
+        Кошки
       </button>
       <button 
         class="filter-button" 
         :class="{ active: selectedFilter.type === 'dog' }"
         @click="toggleFilter('type', 'dog')"
       >
-        <img src="path_to_dog_icon.svg" alt="Dog Icon" />
-        Dog
+      <CustomIcon fillColor="black" type="dog"/>
+        Собаки
       </button>
       <button 
         class="filter-button" 
         :class="{ active: selectedFilter.time === 'last_hour' }"
         @click="toggleFilter('time', 'last_hour')"
       >
-        <img src="path_to_clock_icon.svg" alt="Last Hour Icon" />
-        Last Hour
+      <CustomIcon fillColor="black" type="force"/>
+        Последние
       </button>
       <button 
         class="reset-button"
@@ -49,10 +49,12 @@
 
 <script>
 import ItemCard from './ItemCard.vue';
+import CustomIcon from './icons/CustomIcon.vue';
 
 export default {
   components: {
-    ItemCard
+    ItemCard,
+    CustomIcon
   },
   props: {
     items: {
@@ -108,8 +110,8 @@ export default {
 
 
   <style scoped>
-  <style scoped>
-.container {
+
+  .container {
   width: 100%;
 }
 
@@ -129,7 +131,7 @@ export default {
   align-items: center;
   gap: 10px;
   padding: 10px 0;
-  background: #e0e0e0;
+  background: #ffffff;
   width: 100%;
 }
 
@@ -141,15 +143,18 @@ export default {
   border: none;
   padding: 5px 10px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 12px;
   color: #898989;
+  background-color: rgb(238, 238, 238);
+  border-radius: 20px;
   transition: background-color 0.3s;
 }
 
 .filter-button.active {
   background-color: #007bff;
   color: white;
-  border-radius: 4px;
+  border-radius: 20px;
+  
 }
 
 .filter-button img {
