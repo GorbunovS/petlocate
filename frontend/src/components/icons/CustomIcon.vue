@@ -31,9 +31,9 @@
         };
         return icons[this.type] || '';
       },
-      viewBox() {
-        return '0 0 24 24'; // Установите правильные значения viewBox для вашего SVG
-      }
+    //   viewBox() {
+    //     return '0 0 24 24'; // Установите правильные значения viewBox для вашего SVG
+    //   }
     }
   };
   </script>

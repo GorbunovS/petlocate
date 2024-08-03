@@ -17,7 +17,10 @@
         <div class="item-location">{{ item.location }}</div>
       </div>
     </div>
+    <div class="comment-container" :style="{ flexDirection: 'column', gap: '7px' }">
+      <div class="info-header">Комментарий</div>
     <div class="item-comment">{{ item.comment }}</div>
+  </div>
   </div>
 </template>
 
@@ -55,10 +58,20 @@ export default {
 </script>
 
 <style scoped>
+
+.item-location {
+  color: #848484;
+text-align: left;
+font-size: 13px;
+font-style: normal;
+font-weight: 400;
+line-height: normal;}
 .pic-container {
   position: relative;
-  width: 100px;
-  height: 100px;
+  width: 62px;
+height: 62px;
+flex-shrink: 0;
+
 }
 
 .item-photo {
@@ -73,12 +86,14 @@ export default {
   width: 100%;
   bottom: 0;
   left: 0;
+  font-size: 13px;
   font-weight: bold;
   padding: 2px 6px;
   border-radius: 4px;
   color: #FFF;
   text-align: center;
   box-sizing: border-box;
+  
 }
 
 .item-card {
@@ -109,10 +124,12 @@ export default {
 
 .item-info {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  flex: 1;
-}
+width: 195px;
+flex-direction: column;
+justify-content: center;
+align-items: flex-start;
+gap: 7px;
+flex-shrink: 0;}
 
 .info-container {
   width: 195px;
@@ -125,11 +142,12 @@ export default {
 }
 
 .info-header {
-  color: #d0d0d0;
-  padding: 5px;
-  border-radius: 4px;
-  font-weight: normal;
-  text-align: center;
+  color: #BAB3B3;
+font-family: Ubuntu;
+font-size: 10px;
+font-style: normal;
+font-weight: 400;
+line-height: normal;
 }
 
 .info-content {
@@ -140,26 +158,39 @@ export default {
 .item-time {
   display: flex;
   align-items: center;
-  font-size: 0.9em;
-  color: #757575;
-  margin-bottom: 5px;
+  gap: 10px;
+
 }
 
 .time-icon {
-  width: 24px;
-  height: 24px;
-  margin-right: 5px;
+  width: 13px;
+  height: 16px;
 }
 
 .time-text {
-  font-weight: bold;
+  color: #000;
+text-align: center;
+font-family: Ubuntu;
+font-size: 13px;
+font-style: normal;
+font-weight: 500;
+line-height: normal;
 }
 
 .item-type, .item-comment {
-  margin-bottom: 5px;
   display: flex;
-  align-items: center;
-  background: silver;
+  width: 183px;
+  padding: 10px;
+  align-items: flex-start;
+  gap: 10px;
+  border-radius: 20px 20px 20px 0px;
+  background: #E6E6E6;
+  color: #6A6A6A;
+  font-family: Ubuntu;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
 }
 
 .item-icon {

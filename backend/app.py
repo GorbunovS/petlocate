@@ -1,9 +1,6 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
 
-
-
-
 app = Flask(__name__)
 CORS(app)
 
@@ -18,7 +15,7 @@ def get_items():
             'time': 'Около часа назад',
             'location': 'г. Реутов Улица Октября',
             'comment': 'Отзывается на кличку Тесла. Любит есть какашки',
-            'position': [55.760, 37.620]  # Координаты для маркера
+            'position': [55.760, 37.620]  # Координаты для маркераp
         }
         # Добавьте другие предметы здесь
     ]

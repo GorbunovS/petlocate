@@ -28,7 +28,7 @@ export default createStore({
   actions: {
     async fetchItems({ commit }) {
       try {
-        const response = await axios.get('http://localhost:5000/api/items'); // Убедитесь, что URL совпадает с вашим Flask эндпоинтом
+        const response = await axios.get('http://127.0.0.1:5000/api/items'); // Убедитесь, что URL совпадает с вашим Flask эндпоинтом
         commit('setItems', response.data);
       } catch (error) {
         console.error('Error fetching items:', error);
