@@ -2,7 +2,20 @@
   <div class="map-container">
     <l-map :zoom="zoom" :center="center" style="height: 100vh; width: 100vw;">
       <l-tile-layer :url="url" :attribution="attribution" />
-      <l-marker v-for="marker in markers" :key="marker.id" :lat-lng="marker.position" />
+      <l-marker
+        v-for="marker in markers"
+        :key="marker.id"
+        :lat-lng="marker.position"
+      >
+        <l-popup>
+          <img :src="marker.photo" alt="Photo" style="width: 100px; height: auto;" />
+          <div><strong>Status:</strong> {{ marker.status }}</div>
+          <div><strong>Type:</strong> {{ marker.type }}</div>
+          <div><strong>Time:</strong> {{ marker.time }}</div>
+          <div><strong>Location:</strong> {{ marker.location }}</div>
+          <div><strong>Comment:</strong> {{ marker.comment }}</div>
+        </l-popup>
+      </l-marker>
     </l-map>
     <div class="side-container">
       <div class="list-view">
@@ -20,7 +33,7 @@
 
 <script>
 import { mapState, mapActions } from 'vuex';
-import { LMap, LTileLayer, LMarker } from 'vue3-leaflet';
+import { LMap, LTileLayer, LMarker, LPopup } from 'vue3-leaflet';
 import 'leaflet/dist/leaflet.css';
 import ParticipantList from './ParticipantList.vue';
 import ChatItem from './ChatItem.vue';
@@ -32,6 +45,7 @@ export default {
     LMap,
     LTileLayer,
     LMarker,
+    LPopup,
     ParticipantList,
     ChatItem,
     ItemList
@@ -48,7 +62,7 @@ export default {
       center: [55.751244, 37.618423],
       url: 'https://tile.udev.su/styles/basemap/512/{z}/{x}/{y}.png',
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      markers: []
+      markers: [] // Список маркеров будет заполнен данными
     };
   },
   computed: {
@@ -57,8 +71,29 @@ export default {
   methods: {
     ...mapActions(['fetchItems']),
     updateMarker(item) {
-      this.markers = [{ id: item.id, position: item.position }];
-      this.center = item.position;
+      // Обновляем центр карты на позицию выбранного маркера
+      this.center = [item.position.lat, item.position.lng];
+    }
+  },
+  watch: {
+    items(newItems) {
+      // Обновляем маркеры при изменении items
+      this.markers = newItems.map(item => ({
+        id: item.id,
+        position: { lat: item.position[0], lng: item.position[1] },
+        photo: item.photo,
+        status: item.status,
+        type: item.type,
+        time: item.time,
+        location: item.location,
+        comment: item.comment
+      }));
+      // Обновляем центр карты на среднюю позицию маркеров, если их много
+      if (this.markers.length > 0) {
+        const latSum = this.markers.reduce((sum, marker) => sum + marker.position.lat, 0);
+        const lngSum = this.markers.reduce((sum, marker) => sum + marker.position.lng, 0);
+        this.center = [latSum / this.markers.length, lngSum / this.markers.length];
+      }
     }
   },
   created() {

@@ -116,6 +116,8 @@ export default {
 }
 
 .subheader {
+
+  text-align: center;
   padding: 6px 0;
   justify-content: center;
   align-items: center;
