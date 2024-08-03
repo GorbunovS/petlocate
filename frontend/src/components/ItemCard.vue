@@ -1,28 +1,29 @@
 <template>
   <div class="item-card" :class="{ selected: isSelected }" @click="selectItem">
     <div class="pic-container">
-      <span class="item-status" :class="statusClass">{{ item.status }}</span>
+      <span class="item-status" :class="[statusClass, { 'selected-status': isSelected }]">{{ item.status }}</span>
       <img :src="item.photo" alt="Animal Photo" class="item-photo" />
     </div>
     <div class="item-info">
-      <div class="info-container">
-        <div class="info-header">Информация</div>
+      <div class="info-container" :class="{ 'selected-info-container': isSelected }">
+        <div class="info-header" :class="{ 'selected-header': isSelected }">Информация</div>
         <div class="info-content">
-          <div class="item-time">
+          <div class="item-time" :class="{ 'selected-time': isSelected }">
             <CustomIcon v-if="isRecentTime(item.time)" type="force" class="time-icon" />
             <span class="time-text">{{ item.time }}</span>
             <CustomIcon :type="item.type" class="item-icon" />
           </div>
         </div>
-        <div class="item-location">{{ item.location }}</div>
+        <div class="item-location" :class="{ 'selected-location': isSelected }">{{ item.location }}</div>
       </div>
     </div>
     <div class="comment-container" :style="{ flexDirection: 'column', gap: '7px' }">
-      <div class="info-header">Комментарий</div>
-    <div class="item-comment">{{ item.comment }}</div>
-  </div>
+      <div class="info-header" :class="{ 'selected-header': isSelected }">Комментарий</div>
+      <div class="item-comment" :class="{ 'selected-comment': isSelected }">{{ item.comment }}</div>
+    </div>
   </div>
 </template>
+
 
 <script>
 import CustomIcon from '@/components/icons/CustomIcon.vue';
@@ -111,6 +112,12 @@ flex-shrink: 0;
 .item-card.selected {
   background: #9747FF;
   color: white;
+}
+.item-card.selected .time-text {
+  color: #ffffff; /* Новый цвет для .time-text при selected */
+}
+.item-card.selected .item-location {
+  color: #eaeaea; /* Новый цвет для .item-location при selected */
 }
 
 .item-card.selected:hover {

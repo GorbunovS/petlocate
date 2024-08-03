@@ -1,5 +1,5 @@
 <template>
-  <div class="main-layout">
+  <div class="main-layout-two">
     <header class="header">
       <div class="header-left">
         <img class="logo" src="@/assets/text-logo.svg" alt="Text Logo" />
@@ -54,6 +54,7 @@ export default {
   }
 };
 </script>
+
 <style scoped>
 /* Основной стиль для логотипа */
 .logo {
@@ -62,11 +63,11 @@ export default {
 }
 
 /* Основной контейнер */
-.main-layout {
+.main-layout-two {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  margin-top: 37px;
+  height: 100vh;
+  overflow: hidden;
 }
 
 /* Хедер */
@@ -171,17 +172,11 @@ export default {
   height: 20px;
 }
 
-/* Окно чата */
-.chat-window {
-  position: fixed;
-  bottom: 0;
-  right: 0;
-  width: 300px;
-  height: 400px;
-  background-color: #ffffff;
-  border: 1px solid #e6e6e6;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  z-index: 1001;
+/* Основной контент */
+.content {
+  margin-top: 80px; /* Установите размер margin-top равным высоте вашего хедера */
+  flex-grow: 1;
+  overflow-y: auto;
+  background: rgba(240, 240, 240, 0.8);
 }
 </style>
-

@@ -1,16 +1,15 @@
 <template>
   <div class="app">
-    <main-layout>
-    </main-layout>
+    <router-view :isChatOpen="isChatOpen" @toggleChat="toggleChat"></router-view>
   </div>
 </template>
 
 <script>
-import MainLayout from './components/MainLayout.vue'
+// import MainLayout from './components/MainLayout.vue'
 
 export default {
   components: {
-    MainLayout
+    // MainLayout
   }
 }
 </script>
