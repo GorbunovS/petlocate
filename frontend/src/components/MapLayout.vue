@@ -6,6 +6,8 @@
         v-for="marker in filteredMarkers"
         :key="marker.id"
         :lat-lng="marker.position"
+        :ref="'marker-' + marker.id"
+        @click="selectMarkerFromMap(marker)"
       >
         <l-popup>
           <PopupTemplate :item="marker" />
@@ -17,7 +19,8 @@
         <ItemList 
           :items="items" 
           :selected-filter="selectedFilter" 
-          @item-selected="updateMarker" 
+          :selected-item-id="selectedItemId"
+          @item-selected="selectMarker" 
           @filter-changed="updateFilter"
         />
       </div>
@@ -64,11 +67,12 @@ export default {
       center: [55.751244, 37.618423],
       url: 'https://tile.udev.su/styles/basemap/512/{z}/{x}/{y}.png',
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      markers: [], // Список маркеров будет заполнен данными
+      markers: [],
       selectedFilter: {
         type: null,
         time: null
-      }
+      },
+      selectedItemId: null
     };
   },
   computed: {
@@ -83,8 +87,19 @@ export default {
   },
   methods: {
     ...mapActions(['fetchItems']),
-    updateMarker(item) {
+    selectMarker(item) {
+      this.selectedItemId = item.id;
       this.center = [item.position.lat, item.position.lng];
+      this.$nextTick(() => {
+        const marker = this.$refs['marker-' + item.id][0];
+        if (marker && marker.mapObject) {
+          marker.mapObject.openPopup();
+        }
+      });
+    },
+    selectMarkerFromMap(marker) {
+      this.selectedItemId = marker.id;
+      this.$emit('item-selected', marker);
     },
     updateFilter(newFilter) {
       this.selectedFilter = newFilter;
@@ -120,7 +135,6 @@ export default {
   }
 };
 </script>
-
 
 <style scoped>
 .map-container {
