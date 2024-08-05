@@ -13,6 +13,7 @@
     "element-plus": "^2.7.8",
     "leaflet": "^1.9.4",
     "vue": "^3.2.13",
+    "vue-leaflet-custom-marker": "^1.0.0",
     "vue-router": "^4.4.0",
     "vue-virtual-scroll-grid": "^1.11.0",
     "vue-virtual-scroller": "^2.0.0-beta.8",

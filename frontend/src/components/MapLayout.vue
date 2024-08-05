@@ -3,23 +3,23 @@
     <l-map :zoom="zoom" :center="center" style="height: 100vh; width: 100vw;">
       <l-tile-layer :url="url" :attribution="attribution" />
       <l-marker
-        v-for="marker in markers"
+        v-for="marker in filteredMarkers"
         :key="marker.id"
         :lat-lng="marker.position"
       >
-        <l-popup>
-          <img :src="marker.photo" alt="Photo" style="width: 100px; height: auto;" />
-          <div><strong>Status:</strong> {{ marker.status }}</div>
-          <div><strong>Type:</strong> {{ marker.type }}</div>
-          <div><strong>Time:</strong> {{ marker.time }}</div>
-          <div><strong>Location:</strong> {{ marker.location }}</div>
-          <div><strong>Comment:</strong> {{ marker.comment }}</div>
-        </l-popup>
+    <l-popup>
+      <PopupTemplate :item="marker" />
+    </l-popup>
       </l-marker>
     </l-map>
     <div class="side-container">
       <div class="list-view">
-        <ItemList :items="items" @item-selected="updateMarker" />
+        <ItemList 
+          :items="items" 
+          :selected-filter="selectedFilter" 
+          @item-selected="updateMarker" 
+          @filter-changed="updateFilter"
+        />
       </div>
       <transition name="chat-container" @before-enter="beforeEnter" @enter="enter" @leave="leave">
         <div v-if="isChatOpen" class="chat-container">
@@ -38,6 +38,7 @@ import 'leaflet/dist/leaflet.css';
 import ParticipantList from './ParticipantList.vue';
 import ChatItem from './ChatItem.vue';
 import ItemList from './ItemList.vue';
+import PopupTemplate from './PopupTemplate.vue';
 
 export default {
   name: 'MapLayout',
@@ -48,7 +49,8 @@ export default {
     LPopup,
     ParticipantList,
     ChatItem,
-    ItemList
+    ItemList,
+    PopupTemplate
   },
   props: {
     isChatOpen: {
@@ -62,22 +64,40 @@ export default {
       center: [55.751244, 37.618423],
       url: 'https://tile.udev.su/styles/basemap/512/{z}/{x}/{y}.png',
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      markers: [] // Список маркеров будет заполнен данными
+      markers: [], // Список маркеров будет заполнен данными
+      selectedFilter: {
+        type: null,
+        time: null
+      }
     };
   },
   computed: {
-    ...mapState(['items'])
+    ...mapState(['items']),
+    filteredMarkers() {
+      return this.markers.filter(marker => {
+        const typeFilter = this.selectedFilter.type ? marker.type === this.selectedFilter.type : true;
+        const timeFilter = this.selectedFilter.time ? this.isInTimeFilter(marker.time) : true;
+        return typeFilter && timeFilter;
+      });
+    }
   },
   methods: {
     ...mapActions(['fetchItems']),
     updateMarker(item) {
-      // Обновляем центр карты на позицию выбранного маркера
       this.center = [item.position.lat, item.position.lng];
+    },
+    updateFilter(newFilter) {
+      this.selectedFilter = newFilter;
+    },
+    isInTimeFilter(itemTime) {
+      const now = new Date();
+      const itemTimeDate = new Date(itemTime); 
+      const oneHourAgo = new Date(now.getTime() - (60 * 60 * 1000));
+      return itemTimeDate > oneHourAgo;
     }
   },
   watch: {
     items(newItems) {
-      // Обновляем маркеры при изменении items
       this.markers = newItems.map(item => ({
         id: item.id,
         position: { lat: item.position[0], lng: item.position[1] },
@@ -88,7 +108,6 @@ export default {
         location: item.location,
         comment: item.comment
       }));
-      // Обновляем центр карты на среднюю позицию маркеров, если их много
       if (this.markers.length > 0) {
         const latSum = this.markers.reduce((sum, marker) => sum + marker.position.lat, 0);
         const lngSum = this.markers.reduce((sum, marker) => sum + marker.position.lng, 0);
@@ -97,7 +116,7 @@ export default {
     }
   },
   created() {
-    this.fetchItems(); // Получаем данные при создании компонента
+    this.fetchItems();
   }
 };
 </script>

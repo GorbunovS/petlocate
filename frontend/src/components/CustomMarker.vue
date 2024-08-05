@@ -1,54 +1,55 @@
+<!-- CustomMarker.vue -->
 <template>
-    <l-marker :lat-lng="latLng" :icon="icon" />
-  </template>
-  
-  <script>
-  import { LMarker } from 'vue3-leaflet';
-  import L from 'leaflet';
-  
-  export default {
-    name: 'CustomMarker',
-    components: {
-      LMarker
+  <l-marker :lat-lng="latLng" :icon="customIcon">
+    <slot></slot>
+  </l-marker>
+</template>
+
+<script>
+import { defineComponent } from 'vue';
+import { LMarker } from 'vue3-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+export default defineComponent({
+  name: 'CustomMarker',
+  components: {
+    LMarker,
+  },
+  props: {
+    latLng: {
+      type: Object,
+      required: true,
     },
-    props: {
-      latLng: {
-        type: Array,
-        required: true
-      }
+    iconUrl: {
+      type: String,
+      required: true,
     },
-    data() {
-      return {
-        icon: L.divIcon({
-          className: 'custom-icon',
-          html: `
-            <div style="
-              width: 30px;
-              height: 30px;
-              background-color: blue;
-              border-radius: 50%;
-              border: 2px solid white;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              font-size: 16px;
-              color: white;
-              text-align: center;
-              line-height: 30px;
-            ">
-              F
-            </div>
-          `,
-          iconSize: [30, 30]
-        })
-      };
-    }
-  };
-  </script>
-  
-  <style scoped>
-  .custom-icon {
-    background: transparent;
-  }
-  </style>
-  
+    iconSize: {
+      type: Array,
+      default: () => [25, 41],
+    },
+    iconAnchor: {
+      type: Array,
+      default: () => [12, 41],
+    },
+    popupAnchor: {
+      type: Array,
+      default: () => [1, -34],
+    },
+  },
+  computed: {
+    customIcon() {
+      return L.icon({
+        iconUrl: this.iconUrl,
+        iconSize: this.iconSize,
+        iconAnchor: this.iconAnchor,
+        popupAnchor: this.popupAnchor,
+      });
+    },
+  },
+});
+</script>
+
+<style scoped>
+</style>
