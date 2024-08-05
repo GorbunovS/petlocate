@@ -7,7 +7,7 @@
           :items="items" 
           :selected-filter="selectedFilter" 
           :selected-item-id="selectedItemId"
-          @item-selected="selectMarker" 
+          @item-selected="selectMarker"
           @filter-changed="updateFilter"
         />
       </div>
@@ -23,6 +23,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import ItemList from './ItemList.vue';
@@ -44,21 +45,23 @@ export default {
       required: true
     }
   },
+  computed: {
+    ...mapGetters(['items'])
+  },
   data() {
     return {
       map: null,
-      zoom: 12, // Значение увеличения по умолчанию
-      center: [37.618423, 55.751244], // [lng, lat] - координаты центра Москвы
+      zoom: 12,
+      center: [37.618423, 55.751244],
       selectedFilter: {
         type: null,
         time: null
       },
-      selectedItemId: null,
-      items: [] // Изначально пусто, данные будут загружены из API
+      selectedItemId: null
     };
   },
   methods: {
-    setupMap() {
+    async setupMap() {
       this.map = new maplibregl.Map({
         container: 'map',
         style: 'https://api.maptiler.com/maps/basic-v2/style.json?key=g7cM1vMR1viO2I3YInIA',
@@ -67,81 +70,99 @@ export default {
       });
 
       this.map.on('load', () => {
-        console.log('Map loaded');
-        this.addCustomMarker(); // Добавляем маркер с кастомной иконкой
+        this.addMarkers(); // Добавляем маркеры при загрузке карты
+        this.updateMarkers(); // Применяем фильтры
       });
     },
 
-    addCustomMarker() {
-      console.log('Adding a custom marker at center of Moscow');
-
-      // Удаление предыдущих маркеров, если есть
-      if (this.map.getLayer('custom-marker-layer')) {
-        this.map.removeLayer('custom-marker-layer');
-      }
-      if (this.map.getSource('custom-marker-source')) {
-        this.map.removeSource('custom-marker-source');
-      }
-
-      // Определение SVG иконки
-      const svgIcon = `
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19 19" width="40" height="40">
-          <circle cx="9.5" cy="9.5" r="8" fill="white" stroke="#FF8A00" stroke-width="3"/>
-        </svg>
-      `;
-
-      // Создание изображения из SVG
-      const image = new Image();
-      image.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgIcon);
-
-      // Добавление изображения в карту
-      image.onload = () => {
-        this.map.addImage('custom-icon', image);
-
-        // Добавление источника данных
-        this.map.addSource('custom-marker-source', {
-          type: 'geojson',
-          data: {
-            type: 'FeatureCollection',
-            features: [{
-              type: 'Feature',
-              properties: { id: 'moscow-center' },
-              geometry: {
-                type: 'Point',
-                coordinates: this.center // Долгота, Широта
-              }
-            }]
-          }
-        });
-
-        // Добавление слоя с кастомной иконкой
-        this.map.addLayer({
-          id: 'custom-marker-layer',
-          type: 'symbol',
-          source: 'custom-marker-source',
-          layout: {
-            'icon-image': 'custom-icon', // Используем кастомную SVG иконку
-            'icon-size': 1 // Размер иконки
-          }
-        });
-
-        // Опционально: Добавление слушателя клика для маркера
-        this.map.on('click', 'custom-marker-layer', (e) => {
-          console.log('Marker clicked', e.features[0].properties.id);
-          this.map.flyTo({
-            center: this.center,
-            zoom: this.zoom
-          });
-        });
+    addMarkers() {
+      // Определение SVG иконок с динамическими цветами
+      const statusColors = {
+        lost: '#FF8A00', // Оранжевый для "утерян"
+        found: '#00A3FF' // Синий для "найден"
       };
+
+      const getIconSvg = (color) => `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19 19" width="40" height="40">
+          <circle cx="9.5" cy="9.5" r="8" fill="white" stroke="${color}" stroke-width="3"/>
+        </svg>`;
+
+      // Добавляем иконки на карту
+      Object.keys(statusColors).forEach(status => {
+        const svgIcon = getIconSvg(statusColors[status]);
+        const image = new Image();
+        image.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgIcon);
+
+        image.onload = () => {
+          if (!this.map.getImage(`icon-${status}`)) {
+            this.map.addImage(`icon-${status}`, image);
+          }
+        };
+      });
+
+      // Добавляем маркеры как источник данных
+      const features = this.items.map(item => ({
+        type: 'Feature',
+        properties: { id: item.id, type: item.type, status: item.status },
+        geometry: {
+          type: 'Point',
+          coordinates: item.position // Используем данные из Vuex
+        }
+      }));
+
+      this.map.addSource('custom-marker-source', {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: features
+        }
+      });
+
+      this.map.addLayer({
+        id: 'custom-marker-layer',
+        type: 'symbol',
+        source: 'custom-marker-source',
+        layout: {
+          'icon-image': ['case',
+            ['==', ['get', 'status'], 'Утерян'], 'icon-lost',
+            ['==', ['get', 'status'], 'Найден'], 'icon-found',
+            'default-icon'
+          ],
+          'icon-size': 1
+        }
+      });
+    },
+
+    updateMarkers() {
+      if (!this.map) {
+        console.error('Map is not initialized');
+        return;
+      }
+
+      const filterType = this.selectedFilter.type;
+      const filterExpression = filterType ? ['==', ['get', 'type'], filterType] : ['!=', ['get', 'type'], 'null'];
+
+      this.map.setFilter('custom-marker-layer', filterExpression);
     },
 
     updateFilter(newFilter) {
       this.selectedFilter = newFilter;
-      // В этом случае обновление фильтра не требуется, так как у нас только один маркер
+      this.updateMarkers(); // Обновляем маркеры при изменении фильтра
+    },
+
+    selectMarker(itemId) {
+      this.selectedItemId = itemId;
+      const item = this.items.find(i => i.id === itemId);
+      if (item) {
+        this.map.flyTo({
+          center: item.position,
+          zoom: this.zoom
+        });
+      }
     }
   },
-  mounted() {
+  async mounted() {
+    await this.$store.dispatch('fetchItems');
     this.setupMap();
   }
 };
