@@ -23,6 +23,8 @@
 </template>
 
 <script>
+import { createApp } from 'vue'; // Импортируем createApp
+import PopupItem from './PopupItem.vue'; // Импортируйте компонент попапа
 import { mapGetters } from 'vuex';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
@@ -57,7 +59,8 @@ export default {
         type: null,
         time: null
       },
-      selectedItemId: null
+      selectedItemId: null,
+      popup: null // Для хранения ссылки на текущий попап
     };
   },
   methods: {
@@ -72,6 +75,35 @@ export default {
       this.map.on('load', () => {
         this.addMarkers(); // Добавляем маркеры при загрузке карты
         this.updateMarkers(); // Применяем фильтры
+
+        // Обработчик клика на маркеры
+        this.map.on('click', 'custom-marker-layer', (event) => {
+          const feature = event.features[0];
+          const coordinates = feature.geometry.coordinates.slice();
+          const itemId = feature.properties.id;
+          const item = this.items.find(i => i.id === itemId);
+
+          if (item) {
+            // Закрываем предыдущий попап, если открыт
+            if (this.popup) {
+              this.popup.remove();
+            }
+
+            this.popup = new maplibregl.Popup({ closeButton: false })
+              .setLngLat(coordinates)
+              .setDOMContent(this.createPopupContent(item))
+              .addTo(this.map);
+          }
+        });
+
+        // Курсор мыши меняется при наведении на маркеры
+        this.map.on('mouseenter', 'custom-marker-layer', () => {
+          this.map.getCanvas().style.cursor = 'pointer';
+        });
+
+        this.map.on('mouseleave', 'custom-marker-layer', () => {
+          this.map.getCanvas().style.cursor = '';
+        });
       });
     },
 
@@ -159,6 +191,16 @@ export default {
           zoom: this.zoom
         });
       }
+    },
+
+    createPopupContent(item) {
+      const container = document.createElement('div');
+      // Создаем приложение Vue
+      const app = createApp(PopupItem, { item });
+      // Монтируем компонент на временный DOM элемент
+      const popup = app.mount(document.createElement('div'));
+      container.appendChild(popup.$el);
+      return container;
     }
   },
   async mounted() {

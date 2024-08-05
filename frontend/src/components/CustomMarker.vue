@@ -13,7 +13,7 @@
 
 <script>
 import { LImageOverlay, LPopup } from 'vue3-leaflet';
-import PopupTemplate from './PopupTemplate.vue';
+import PopupTemplate from './PopupItem.vue';
 
 export default {
   name: 'CustomMarker',

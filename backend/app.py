@@ -18,7 +18,7 @@ items = [
     {
         'id': 2,
         'photo': 'https://via.placeholder.com/100',
-        'status': 'Утерян',
+        'status': 'Найден',
         'type': 'dog',
         'time': 'Около двух часов назад',
         'location': 'г. Москва, Красная площадь',
@@ -38,7 +38,7 @@ items = [
     {
         'id': 4,
         'photo': 'https://via.placeholder.com/100',
-        'status': 'Утерян',
+        'status': 'Найден',
         'type': 'dog',
         'time': 'Вчера вечером',
         'location': 'г. Москва, Парк Горького',
