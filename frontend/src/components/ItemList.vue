@@ -9,7 +9,7 @@
         :class="{ active: selectedFilter.type === 'cat' }"
         @click="toggleFilter('type', 'cat')"
       >
-      <CustomIcon fillColor="black" type="cat"/>
+        <CustomIcon fillColor="black" type="cat"/>
         Кошки
       </button>
       <button 
@@ -17,7 +17,7 @@
         :class="{ active: selectedFilter.type === 'dog' }"
         @click="toggleFilter('type', 'dog')"
       >
-      <CustomIcon fillColor="black" type="dog"/>
+        <CustomIcon fillColor="black" type="dog"/>
         Собаки
       </button>
       <button 
@@ -25,7 +25,7 @@
         :class="{ active: selectedFilter.time === 'last_hour' }"
         @click="toggleFilter('time', 'last_hour')"
       >
-      <CustomIcon fillColor="black" type="force"/>
+        <CustomIcon fillColor="black" type="force"/>
         Последние
       </button>
       <button 
@@ -34,6 +34,9 @@
       >
         Reset Filters
       </button>
+    </div>
+    <div v-if="filteredItems.length === 0" class="no-items-message">
+      Нет доступных элементов.
     </div>
     <div class="item-list">
       <ItemCard 
@@ -48,6 +51,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import ItemCard from './ItemCard.vue';
 import CustomIcon from './icons/CustomIcon.vue';
 
@@ -56,22 +60,17 @@ export default {
     ItemCard,
     CustomIcon
   },
-  props: {
-    items: {
-      type: Array,
-      required: true
-    },
-    selectedFilter: {
-      type: Object,
-      required: true
-    }
-  },
   data() {
     return {
+      selectedFilter: {
+        type: null,
+        time: null
+      },
       selectedItemId: null
     };
   },
   computed: {
+    ...mapGetters(['items']),
     filteredItems() {
       return this.items.filter(item => {
         const typeFilter = this.selectedFilter.type ? item.type === this.selectedFilter.type : true;
@@ -88,10 +87,10 @@ export default {
     toggleFilter(filterType, value) {
       const newFilter = { ...this.selectedFilter };
       newFilter[filterType] = newFilter[filterType] === value ? null : value;
-      this.$emit('filter-changed', newFilter);
+      this.selectedFilter = newFilter; // Обновление локального состояния фильтров
     },
     resetFilters() {
-      this.$emit('filter-changed', { type: null, time: null });
+      this.selectedFilter = { type: null, time: null }; // Сброс фильтров
     },
     isInTimeFilter(itemTime) {
       const now = new Date();
@@ -99,25 +98,22 @@ export default {
       const oneHourAgo = new Date(now.getTime() - (60 * 60 * 1000));
       return itemTimeDate > oneHourAgo;
     }
+  },
+  async mounted() {
+    // Вызов действия для загрузки данных
+    await this.$store.dispatch('fetchItems');
   }
 };
 </script>
 
-
-
-  <style scoped>
-
-  .container {
+<style scoped>
+.container {
   width: 100%;
 }
 
 .subheader {
-
   text-align: center;
   padding: 6px 0;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
   font-size: 13px;
   background: #ffffff;
 }
@@ -151,13 +147,6 @@ export default {
 .filter-button.active {
   background-color: #007bff;
   color: white;
-  border-radius: 20px;
-  
-}
-
-.filter-button img {
-  width: 20px;
-  height: 20px;
 }
 
 .reset-button {
@@ -179,5 +168,11 @@ export default {
   height: calc(100vh - 120px); /* Adjust height as needed */
   overflow-y: auto;
   background: rgba(240, 240, 240, 0.8);
+}
+
+.no-items-message {
+  text-align: center;
+  padding: 20px;
+  color: #999;
 }
 </style>

@@ -1,55 +1,71 @@
-<!-- CustomMarker.vue -->
 <template>
-  <l-marker :lat-lng="latLng" :icon="customIcon">
-    <slot></slot>
-  </l-marker>
+  <div>
+    <l-image-overlay
+      :bounds="markerBounds"
+      :url="imageUrl"
+      @click="openPopup"
+    />
+    <l-popup v-if="showPopup" :lat-lng="latLng" @close="closePopup">
+      <PopupTemplate :item="item" />
+    </l-popup>
+  </div>
 </template>
 
 <script>
-import { defineComponent } from 'vue';
-import { LMarker } from 'vue3-leaflet';
-import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
+import { LImageOverlay, LPopup } from 'vue3-leaflet';
+import PopupTemplate from './PopupTemplate.vue';
 
-export default defineComponent({
+export default {
   name: 'CustomMarker',
   components: {
-    LMarker,
+    LImageOverlay,
+    LPopup,
+    PopupTemplate
   },
   props: {
-    latLng: {
+    item: {
       type: Object,
-      required: true,
+      required: true
     },
-    iconUrl: {
-      type: String,
-      required: true,
-    },
-    iconSize: {
+    latLng: {
       type: Array,
-      default: () => [25, 41],
-    },
-    iconAnchor: {
-      type: Array,
-      default: () => [12, 41],
-    },
-    popupAnchor: {
-      type: Array,
-      default: () => [1, -34],
-    },
+      required: true
+    }
+  },
+  data() {
+    return {
+      showPopup: false
+    };
   },
   computed: {
-    customIcon() {
-      return L.icon({
-        iconUrl: this.iconUrl,
-        iconSize: this.iconSize,
-        iconAnchor: this.iconAnchor,
-        popupAnchor: this.popupAnchor,
-      });
+    imageUrl() {
+      const color = this.item.status === 'Утерян' ? 'orange' : 'blue';
+      return `data:image/svg+xml;base64,${btoa(`
+        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40">
+          <circle cx="20" cy="20" r="15" stroke="${color}" stroke-width="4" fill="white" />
+        </svg>
+      `)}`;
     },
+    markerBounds() {
+      const [lat, lng] = this.latLng;
+      const offset = 0.0001; // Adjust this value to make the circle bigger or smaller
+      return [[lat - offset, lng - offset], [lat + offset, lng + offset]];
+    }
   },
-});
+  methods: {
+    openPopup() {
+      this.showPopup = true;
+    },
+    closePopup() {
+      this.showPopup = false;
+    }
+  },
+  mounted() {
+    console.log('CustomMarker mounted:', this.item);
+  }
+};
 </script>
 
 <style scoped>
+/* Add any necessary styles here */
 </style>

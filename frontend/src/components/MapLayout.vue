@@ -1,19 +1,6 @@
 <template>
   <div class="map-container">
-    <l-map :zoom="zoom" :center="center" style="height: 100vh; width: 100vw;">
-      <l-tile-layer :url="url" :attribution="attribution" />
-      <l-marker
-        v-for="marker in filteredMarkers"
-        :key="marker.id"
-        :lat-lng="marker.position"
-        :ref="'marker-' + marker.id"
-        @click="selectMarkerFromMap(marker)"
-      >
-        <l-popup>
-          <PopupTemplate :item="marker" />
-        </l-popup>
-      </l-marker>
-    </l-map>
+    <div id="map" class="map"></div>
     <div class="side-container">
       <div class="list-view">
         <ItemList 
@@ -31,29 +18,25 @@
         </div>
       </transition>
     </div>
+    <DebugInfo :selectedItemId="selectedItemId" />
   </div>
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex';
-import { LMap, LTileLayer, LMarker, LPopup } from 'vue3-leaflet';
-import 'leaflet/dist/leaflet.css';
+import maplibregl from 'maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
+import ItemList from './ItemList.vue';
 import ParticipantList from './ParticipantList.vue';
 import ChatItem from './ChatItem.vue';
-import ItemList from './ItemList.vue';
-import PopupTemplate from './PopupTemplate.vue';
+import DebugInfo from './DebugInfo.vue';
 
 export default {
   name: 'MapLayout',
   components: {
-    LMap,
-    LTileLayer,
-    LMarker,
-    LPopup,
+    ItemList,
     ParticipantList,
     ChatItem,
-    ItemList,
-    PopupTemplate
+    DebugInfo
   },
   props: {
     isChatOpen: {
@@ -63,80 +46,114 @@ export default {
   },
   data() {
     return {
-      zoom: 13,
-      center: [55.751244, 37.618423],
-      url: 'https://tile.udev.su/styles/basemap/512/{z}/{x}/{y}.png',
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      markers: [],
+      map: null,
+      zoom: 12, // Значение увеличения по умолчанию
+      center: [37.618423, 55.751244], // [lng, lat] - координаты центра Москвы
       selectedFilter: {
         type: null,
         time: null
       },
-      selectedItemId: null
+      selectedItemId: null,
+      items: [] // Изначально пусто, данные будут загружены из API
     };
   },
-  computed: {
-    ...mapState(['items']),
-    filteredMarkers() {
-      return this.markers.filter(marker => {
-        const typeFilter = this.selectedFilter.type ? marker.type === this.selectedFilter.type : true;
-        const timeFilter = this.selectedFilter.time ? this.isInTimeFilter(marker.time) : true;
-        return typeFilter && timeFilter;
-      });
-    }
-  },
   methods: {
-    ...mapActions(['fetchItems']),
-    selectMarker(item) {
-      this.selectedItemId = item.id;
-      this.center = [item.position.lat, item.position.lng];
-      this.$nextTick(() => {
-        const marker = this.$refs['marker-' + item.id][0];
-        if (marker && marker.mapObject) {
-          marker.mapObject.openPopup();
-        }
+    setupMap() {
+      this.map = new maplibregl.Map({
+        container: 'map',
+        style: 'https://api.maptiler.com/maps/basic-v2/style.json?key=g7cM1vMR1viO2I3YInIA',
+        center: this.center,
+        zoom: this.zoom
+      });
+
+      this.map.on('load', () => {
+        console.log('Map loaded');
+        this.addCustomMarker(); // Добавляем маркер с кастомной иконкой
       });
     },
-    selectMarkerFromMap(marker) {
-      this.selectedItemId = marker.id;
-      this.$emit('item-selected', marker);
+
+    addCustomMarker() {
+      console.log('Adding a custom marker at center of Moscow');
+
+      // Удаление предыдущих маркеров, если есть
+      if (this.map.getLayer('custom-marker-layer')) {
+        this.map.removeLayer('custom-marker-layer');
+      }
+      if (this.map.getSource('custom-marker-source')) {
+        this.map.removeSource('custom-marker-source');
+      }
+
+      // Определение SVG иконки
+      const svgIcon = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19 19" width="40" height="40">
+          <circle cx="9.5" cy="9.5" r="8" fill="white" stroke="#FF8A00" stroke-width="3"/>
+        </svg>
+      `;
+
+      // Создание изображения из SVG
+      const image = new Image();
+      image.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgIcon);
+
+      // Добавление изображения в карту
+      image.onload = () => {
+        this.map.addImage('custom-icon', image);
+
+        // Добавление источника данных
+        this.map.addSource('custom-marker-source', {
+          type: 'geojson',
+          data: {
+            type: 'FeatureCollection',
+            features: [{
+              type: 'Feature',
+              properties: { id: 'moscow-center' },
+              geometry: {
+                type: 'Point',
+                coordinates: this.center // Долгота, Широта
+              }
+            }]
+          }
+        });
+
+        // Добавление слоя с кастомной иконкой
+        this.map.addLayer({
+          id: 'custom-marker-layer',
+          type: 'symbol',
+          source: 'custom-marker-source',
+          layout: {
+            'icon-image': 'custom-icon', // Используем кастомную SVG иконку
+            'icon-size': 1 // Размер иконки
+          }
+        });
+
+        // Опционально: Добавление слушателя клика для маркера
+        this.map.on('click', 'custom-marker-layer', (e) => {
+          console.log('Marker clicked', e.features[0].properties.id);
+          this.map.flyTo({
+            center: this.center,
+            zoom: this.zoom
+          });
+        });
+      };
     },
+
     updateFilter(newFilter) {
       this.selectedFilter = newFilter;
-    },
-    isInTimeFilter(itemTime) {
-      const now = new Date();
-      const itemTimeDate = new Date(itemTime); 
-      const oneHourAgo = new Date(now.getTime() - (60 * 60 * 1000));
-      return itemTimeDate > oneHourAgo;
+      // В этом случае обновление фильтра не требуется, так как у нас только один маркер
     }
   },
-  watch: {
-    items(newItems) {
-      this.markers = newItems.map(item => ({
-        id: item.id,
-        position: { lat: item.position[0], lng: item.position[1] },
-        photo: item.photo,
-        status: item.status,
-        type: item.type,
-        time: item.time,
-        location: item.location,
-        comment: item.comment
-      }));
-      if (this.markers.length > 0) {
-        const latSum = this.markers.reduce((sum, marker) => sum + marker.position.lat, 0);
-        const lngSum = this.markers.reduce((sum, marker) => sum + marker.position.lng, 0);
-        this.center = [latSum / this.markers.length, lngSum / this.markers.length];
-      }
-    }
-  },
-  created() {
-    this.fetchItems();
+  mounted() {
+    this.setupMap();
   }
 };
 </script>
 
+
 <style scoped>
+.map {
+  width: 100%;
+  height: 100%;
+}
+
 .map-container {
   position: relative;
   width: 100%;
@@ -185,5 +202,14 @@ export default {
 .chat-container-leave-to {
   opacity: 0;
   transform: translateX(100%);
+}
+
+.custom-overlay {
+  background-color: rgba(0,0,0,0.5);
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  text-align: center;
 }
 </style>

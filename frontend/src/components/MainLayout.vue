@@ -174,7 +174,7 @@ export default {
 
 /* Основной контент */
 .content {
-  margin-top: 80px; /* Установите размер margin-top равным высоте вашего хедера */
+  margin-top: 100px; /* Установите размер margin-top равным высоте вашего хедера */
   flex-grow: 1;
   overflow-y: auto;
   background: rgba(240, 240, 240, 0.8);
