@@ -7,7 +7,7 @@
           :items="items" 
           :selected-filter="selectedFilter" 
           :selected-item-id="selectedItemId"
-          @item-selected="selectMarker"
+          @item-selected="handleItemSelected"
           @filter-changed="updateFilter"
         />
       </div>
@@ -23,8 +23,8 @@
 </template>
 
 <script>
-import { createApp } from 'vue'; // Импортируем createApp
-import PopupItem from './PopupItem.vue'; // Импортируйте компонент попапа
+import { createApp } from 'vue';
+import PopupItem from './PopupItem.vue';
 import { mapGetters } from 'vuex';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
@@ -60,7 +60,7 @@ export default {
         time: null
       },
       selectedItemId: null,
-      popup: null // Для хранения ссылки на текущий попап
+      popup: null
     };
   },
   methods: {
@@ -73,30 +73,16 @@ export default {
       });
 
       this.map.on('load', () => {
-        this.addMarkers(); // Добавляем маркеры при загрузке карты
-        this.updateMarkers(); // Применяем фильтры
+        this.addMarkers();
+        this.updateMarkers();
 
-        // Обработчик клика на маркеры
         this.map.on('click', 'custom-marker-layer', (event) => {
           const feature = event.features[0];
           const coordinates = feature.geometry.coordinates.slice();
           const itemId = feature.properties.id;
-          const item = this.items.find(i => i.id === itemId);
-
-          if (item) {
-            // Закрываем предыдущий попап, если открыт
-            if (this.popup) {
-              this.popup.remove();
-            }
-
-            this.popup = new maplibregl.Popup({ closeButton: false })
-              .setLngLat(coordinates)
-              .setDOMContent(this.createPopupContent(item))
-              .addTo(this.map);
-          }
+          this.openPopup(itemId, coordinates);
         });
 
-        // Курсор мыши меняется при наведении на маркеры
         this.map.on('mouseenter', 'custom-marker-layer', () => {
           this.map.getCanvas().style.cursor = 'pointer';
         });
@@ -108,10 +94,9 @@ export default {
     },
 
     addMarkers() {
-      // Определение SVG иконок с динамическими цветами
       const statusColors = {
-        lost: '#FF8A00', // Оранжевый для "утерян"
-        found: '#00A3FF' // Синий для "найден"
+        lost: '#FF8A00',
+        found: '#00A3FF'
       };
 
       const getIconSvg = (color) => `
@@ -119,7 +104,6 @@ export default {
           <circle cx="9.5" cy="9.5" r="8" fill="white" stroke="${color}" stroke-width="3"/>
         </svg>`;
 
-      // Добавляем иконки на карту
       Object.keys(statusColors).forEach(status => {
         const svgIcon = getIconSvg(statusColors[status]);
         const image = new Image();
@@ -132,13 +116,12 @@ export default {
         };
       });
 
-      // Добавляем маркеры как источник данных
       const features = this.items.map(item => ({
         type: 'Feature',
         properties: { id: item.id, type: item.type, status: item.status },
         geometry: {
           type: 'Point',
-          coordinates: item.position // Используем данные из Vuex
+          coordinates: item.position
         }
       }));
 
@@ -179,27 +162,39 @@ export default {
 
     updateFilter(newFilter) {
       this.selectedFilter = newFilter;
-      this.updateMarkers(); // Обновляем маркеры при изменении фильтра
+      this.updateMarkers();
     },
 
-    selectMarker(itemId) {
-      this.selectedItemId = itemId;
+    handleItemSelected(item) {
+      this.selectedItemId = item.id;
+      const coordinates = item.position;
+      this.map.flyTo({
+        center: coordinates,
+        zoom: this.zoom
+      });
+      this.openPopup(item.id, coordinates);
+    },
+
+    openPopup(itemId, coordinates) {
       const item = this.items.find(i => i.id === itemId);
       if (item) {
-        this.map.flyTo({
-          center: item.position,
-          zoom: this.zoom
-        });
+        if (this.popup) {
+          this.popup.remove();
+        }
+
+        this.popup = new maplibregl.Popup({ closeButton: false })
+          .setLngLat(coordinates)
+          .setDOMContent(this.createPopupContent(item))
+          .addTo(this.map);
       }
     },
 
     createPopupContent(item) {
       const container = document.createElement('div');
-      // Создаем приложение Vue
       const app = createApp(PopupItem, { item });
-      // Монтируем компонент на временный DOM элемент
-      const popup = app.mount(document.createElement('div'));
-      container.appendChild(popup.$el);
+      const popupElement = document.createElement('div');
+      app.mount(popupElement);
+      container.appendChild(popupElement);
       return container;
     }
   },
@@ -209,7 +204,6 @@ export default {
   }
 };
 </script>
-
 
 <style scoped>
 .map {

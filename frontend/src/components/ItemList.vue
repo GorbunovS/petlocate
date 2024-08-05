@@ -1,9 +1,8 @@
 <template>
   <div class="container">
-    <div class="subheader">
-      Объявления
-    </div>
+    <div class="subheader">Объявления</div>
     <div class="filters">
+      <!-- Фильтры -->
       <button 
         class="filter-button" 
         :class="{ active: selectedFilter.type === 'cat' }"
@@ -82,29 +81,32 @@ export default {
   methods: {
     selectItem(item) {
       this.selectedItemId = item.id;
-      this.$emit('item-selected', item);
+      this.$emit('item-selected', item); // Эмитируем событие
     },
     toggleFilter(filterType, value) {
       const newFilter = { ...this.selectedFilter };
       newFilter[filterType] = newFilter[filterType] === value ? null : value;
-      this.selectedFilter = newFilter; // Обновление локального состояния фильтров
+      this.selectedFilter = newFilter;
+      this.$emit('filter-changed', newFilter); // Эмитируем событие изменения фильтра
     },
     resetFilters() {
-      this.selectedFilter = { type: null, time: null }; // Сброс фильтров
+      this.selectedFilter = { type: null, time: null };
+      this.$emit('filter-changed', this.selectedFilter); // Эмитируем событие сброса фильтра
     },
     isInTimeFilter(itemTime) {
       const now = new Date();
-      const itemTimeDate = new Date(itemTime); 
+      const itemTimeDate = new Date(itemTime);
       const oneHourAgo = new Date(now.getTime() - (60 * 60 * 1000));
       return itemTimeDate > oneHourAgo;
     }
   },
   async mounted() {
-    // Вызов действия для загрузки данных
     await this.$store.dispatch('fetchItems');
   }
 };
 </script>
+
+
 
 <style scoped>
 .container {
