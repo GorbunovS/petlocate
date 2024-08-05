@@ -60,15 +60,15 @@ export default {
     items: {
       type: Array,
       required: true
+    },
+    selectedFilter: {
+      type: Object,
+      required: true
     }
   },
   data() {
     return {
-      selectedItemId: null,
-      selectedFilter: {
-        type: null,
-        time: null
-      }
+      selectedItemId: null
     };
   },
   computed: {
@@ -86,17 +86,12 @@ export default {
       this.$emit('item-selected', item);
     },
     toggleFilter(filterType, value) {
-      if (this.selectedFilter[filterType] === value) {
-        this.selectedFilter[filterType] = null;
-      } else {
-        this.selectedFilter[filterType] = value;
-      }
+      const newFilter = { ...this.selectedFilter };
+      newFilter[filterType] = newFilter[filterType] === value ? null : value;
+      this.$emit('filter-changed', newFilter);
     },
     resetFilters() {
-      this.selectedFilter = {
-        type: null,
-        time: null
-      };
+      this.$emit('filter-changed', { type: null, time: null });
     },
     isInTimeFilter(itemTime) {
       const now = new Date();

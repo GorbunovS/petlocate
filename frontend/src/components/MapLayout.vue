@@ -7,9 +7,9 @@
         :key="marker.id"
         :lat-lng="marker.position"
       >
-    <l-popup>
-      <PopupTemplate :item="marker" />
-    </l-popup>
+        <l-popup>
+          <PopupTemplate :item="marker" />
+        </l-popup>
       </l-marker>
     </l-map>
     <div class="side-container">
@@ -120,6 +120,7 @@ export default {
   }
 };
 </script>
+
 
 <style scoped>
 .map-container {
